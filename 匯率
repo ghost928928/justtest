@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Feb  2 10:51:36 2024
+
+@author: mars
+"""
+
+from datetime import datetime
+
+#import sqlite3
+
+import pandas as pd
+url='https://rate.bot.com.tw/xrt?Lang=zh-TW'
+res = pd.read_html(url)#獲得表格
+df = res[0]#全部的row(行)以及0~5的index(列)
+currency=df.iloc[:,:5]#自訂欄位名稱
+currency.columns=[u'幣別',u'現金匯率-本行買入',u'現金匯率-本行賣出',u'即期匯率-本行買入',u'即期匯率-本行賣出']#修正’幣別’欄位
+currency[u'幣別']=currency[u'幣別'].str.extract('\((\w+)\)')
+
+
+#匯入時間
+
+currency["date"]=datetime.now().strftime("%Y-%m-%d")#將index改為時間
+currency.index=currency['date']
+currency.head()
+
+#連結資料庫檔or創建資料庫檔
+#conn = sqlite3.connect('currency.db')#資料庫游標
+#c = conn.cursor()#創建資料庫
+#c.execute('DROP TABLE IF EXISTS currency ;')#將資料匯入
+#currency.to_sql(name='currency', con=conn, if_exists='replace', index=False)#執行
+#conn.commit()#關閉資料庫
+#conn.close()
+
+print (currency)
+
+sourceFile = open('demo.txt', 'w')
+print(currency, file = sourceFile)
+sourceFile.close()
